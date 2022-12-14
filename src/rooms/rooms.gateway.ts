@@ -1,34 +1,57 @@
-import { WebSocketGateway, SubscribeMessage, MessageBody } from '@nestjs/websockets';
+import {
+  WebSocketGateway,
+  SubscribeMessage,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
+import { Server } from 'ws';
+import { Socket } from 'socket.io';
 
 @WebSocketGateway()
 export class RoomsGateway {
+  @WebSocketServer()
+  server: Server;
   constructor(private readonly roomsService: RoomsService) {}
 
-  @SubscribeMessage('createRoom')
-  create(@MessageBody() createRoomDto: CreateRoomDto) {
-    return this.roomsService.create(createRoomDto);
+  @SubscribeMessage('room/create')
+  async create(client: Socket, data: CreateRoomDto) {
+    return await this.roomsService.create(data);
   }
 
-  @SubscribeMessage('findAllRooms')
-  findAll() {
-    return this.roomsService.findAll();
+  @SubscribeMessage('room/join')
+  async join(client: Socket, room_id: string) {
+    await client.join(room_id);
   }
 
-  @SubscribeMessage('findOneRoom')
-  findOne(@MessageBody() id: number) {
-    return this.roomsService.findOne(id);
+  @SubscribeMessage('room/leave')
+  async leave(client: Socket, room_id: string) {
+    await client.leave(room_id);
+  }
+
+  @SubscribeMessage('room/find')
+  async findAll() {
+    return await this.roomsService.findAll();
+  }
+
+  @SubscribeMessage('room/find-one')
+  async findOne(client: Socket, id: string) {
+    return await this.roomsService.findOne(id);
   }
 
   @SubscribeMessage('updateRoom')
-  update(@MessageBody() updateRoomDto: UpdateRoomDto) {
-    return this.roomsService.update(updateRoomDto.id, updateRoomDto);
+  async update(client: Socket, data: UpdateRoomDto) {
+    return await this.roomsService.update(data);
   }
 
   @SubscribeMessage('removeRoom')
-  remove(@MessageBody() id: number) {
-    return this.roomsService.remove(id);
+  async remove(client: Socket, id: string) {
+    return await this.roomsService.removeOne(id);
+  }
+
+  @SubscribeMessage('removeRoom')
+  async removeMany(client: Socket, ids: string[]) {
+    return await this.roomsService.removeMany(ids);
   }
 }

@@ -1,6 +1,6 @@
 import { EntityManager } from '@mikro-orm/postgresql';
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { BaseEntityRepository } from 'src/common/repositories/base.repository';
+import { CHAT_SELECT } from './chat.constant';
 import { ChatRepository } from './chat.repository';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { FilterChatDto } from './dto/filter-chat.dto';
@@ -14,57 +14,66 @@ export class ChatService {
     private readonly em: EntityManager,
   ) {}
   async create(data: CreateChatDto) {
-    const created_user = this.repo.create(data);
-    this.repo.persist(created_user);
-    await this.repo.flush();
-    return created_user;
+    const qb = this.em.createQueryBuilder(Chat);
+    const result = await qb.select(CHAT_SELECT).insert(data).execute();
+    return {
+      result,
+      status: HttpStatus.CREATED,
+    };
   }
 
   async findAll(filters: FilterChatDto) {
     const qb = this.em.createQueryBuilder(Chat, 'chat');
-    const users = await qb
-      .select([
-        'chat_id',
-        'chat_content',
-        'chat_room_id',
-        'chat_tags_ids',
-        'chat_sent_to_ids',
-        'chat_sent_by_id',
-        'chat_created_at',
-        'chat_updated_at',
-        'chat_deleted_at',
-        'chat_deleted',
-      ])
+    const chats = await qb
+      .select(CHAT_SELECT)
       .where({ chat_deleted: false })
-      // .join(
-      //   'auth-system',
-      //   'user',
-      //   'user.user_id = chat_sent_by_id',
-      //   'innerJoin',
-      // )
       .execute();
     return {
-      result: users,
+      result: chats,
       status: HttpStatus.OK,
     };
   }
 
   async update(data: UpdateChatDto) {
-    const chat_count = await this.repo.count({ chat_id: data.id });
-    if (chat_count === 0)
+    const qb = this.em.createQueryBuilder(Chat);
+    const chat_count = await qb
+      .count()
+      .where({ chat_id: data.chat_id })
+      .execute();
+    if (chat_count[0].count === 0)
       throw new NotFoundException('پیامی با آیدی وارد شده یافت نشد.');
-    await this.repo.nativeUpdate({ chat_id: data.id }, data);
+    const result = await qb
+      .select(CHAT_SELECT)
+      .update(data)
+      .where({ chat_id: data.chat_id })
+      .execute();
+    return {
+      result,
+      status: HttpStatus.OK,
+    };
+  }
+
+  async removeOne(id: string) {
+    const qb = this.em.createQueryBuilder(Chat);
+    const chat_count = await qb.count().where({ chat_id: id }).execute();
+    if (chat_count[0].count === 0)
+      throw new NotFoundException('پیامی با آیدی وارد شده یافت نشد.');
+    await qb.select(CHAT_SELECT).delete().where({ chat_id: id }).execute();
+    await this.repo.nativeDelete({ chat_id: id });
     return {
       status: HttpStatus.OK,
     };
   }
 
-  async remove(id: string) {
-    const chat_count = await this.repo.count({ chat_id: id });
-    if (chat_count === 0)
-      throw new NotFoundException('پیامی با آیدی وارد شده یافت نشد.');
-    await this.repo.nativeDelete({ chat_id: id });
+  async removeMany(ids: string[]) {
+    const qb = this.em.createQueryBuilder(Chat);
+    const result = await qb
+      .select(CHAT_SELECT)
+      .delete()
+      .where({ 'chat_id IN': ids })
+      .execute('all');
     return {
+      result,
       status: HttpStatus.OK,
     };
   }

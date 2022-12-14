@@ -1,16 +1,19 @@
 import {
   WebSocketGateway,
   SubscribeMessage,
-  MessageBody,
+  WebSocketServer,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { Socket } from 'socket.io';
 import { FilterChatDto } from './dto/filter-chat.dto';
+import { Server } from 'ws';
 
 @WebSocketGateway()
 export class ChatGateway {
+  @WebSocketServer()
+  server: Server;
   constructor(private readonly chatService: ChatService) {}
 
   @SubscribeMessage('chat/create')
@@ -32,7 +35,12 @@ export class ChatGateway {
   }
 
   @SubscribeMessage('chat/delete')
-  async remove(socket: Socket, id: string) {
-    return await this.chatService.remove(id);
+  async removeOne(socket: Socket, id: string) {
+    return await this.chatService.removeOne(id);
+  }
+
+  @SubscribeMessage('chat/delete')
+  async removeMany(socket: Socket, ids: string[]) {
+    return await this.chatService.removeMany(ids);
   }
 }
