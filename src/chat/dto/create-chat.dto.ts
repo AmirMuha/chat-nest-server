@@ -57,9 +57,9 @@ export class CreateChatDto {
   chat_sent_by_id?: string;
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
+  @ValidateNested()
   @Type(() => CreateChatContentTypeDto)
-  chat_content?: CreateChatContentTypeDto[];
+  chat_content?: CreateChatContentTypeDto;
   @IsOptional()
   @IsString()
   chat_room_id?: string;

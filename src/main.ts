@@ -14,7 +14,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useWebSocketAdapter(new WsAdapter(app));
 
-  await app.get(MikroORM).getMigrator().up();
+  // await app.get(MikroORM).getMigrator().up();
   await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
   await app.get(MikroORM).getSchemaGenerator().updateSchema();
 
