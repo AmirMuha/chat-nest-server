@@ -16,6 +16,7 @@ export default {
   metadataProvider: TsMorphMetadataProvider,
   logger: (message) => Logger.log(message),
   debug: true,
+  allowGlobalContext: true,
   highlighter: new SqlHighlighter(),
   entities: ['./**/*.entity.js'],
   entitiesTs: ['./**/*.entity.ts'],
