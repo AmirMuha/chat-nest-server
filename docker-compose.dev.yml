@@ -29,23 +29,23 @@ services:
       - "5433:5432"
     restart: unless-stopped
 
-  pgadmin:
-    container_name: chat-nest-pgadmin
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    volumes:
-       - pgadmin:/var/lib/pgadmin
-    ports:
-      - "${PGADMIN_PORT:-5050}:80/tcp"
-    restart: unless-stopped
-    depends_on: 
-      - postgres
+  # pgadmin:
+  #   container_name: chat-nest-pgadmin
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
+  #   volumes:
+  #      - pgadmin:/var/lib/pgadmin
+  #   ports:
+  #     - "${PGADMIN_PORT:-5050}:80/tcp"
+  #   restart: unless-stopped
+  #   depends_on: 
+  #     - postgres
 
 volumes:
   db: 
     name: chat-nest-db
-  pgadmin: 
-    name: chat-nest-pgadmin
+  # pgadmin: 
+  #   name: chat-nest-pgadmin
