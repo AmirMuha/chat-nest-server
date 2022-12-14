@@ -5,12 +5,15 @@ import {
   PrimaryKey,
   JsonType,
   ArrayType,
+  EntityRepositoryType,
 } from '@mikro-orm/core';
 import { v4 } from 'uuid';
+import { ChatRepository } from '../chat.repository';
 import { ChatContentType } from './chat.entity.type';
 
-@Entity()
+@Entity({ customRepository: () => ChatRepository })
 export class Chat {
+  [EntityRepositoryType]: ChatRepository;
   @PrimaryKey({ type: t.uuid })
   chat_id: string = v4();
 

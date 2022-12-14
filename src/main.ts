@@ -12,7 +12,7 @@ async function bootstrap() {
   // app.useGlobalFilters(new CustomExceptionFilter());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  await app.get(MikroORM).getMigrator().up();
+  // await app.get(MikroORM).getMigrator().up();
   await app.get(MikroORM).getSchemaGenerator().ensureDatabase();
   await app.get(MikroORM).getSchemaGenerator().updateSchema();
 

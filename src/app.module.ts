@@ -7,7 +7,7 @@ import { TagsModule } from './tags/tags.module';
 import { ConfigModule } from '@nestjs/config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { RoomsModule } from './rooms/rooms.module';
-import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { UsersModule } from './users/users.module';
     TagsModule,
     ChatModule,
     RoomsModule,
-    UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, ChatGateway],

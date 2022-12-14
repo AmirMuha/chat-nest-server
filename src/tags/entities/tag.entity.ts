@@ -1,12 +1,4 @@
-import {
-  Entity,
-  Property,
-  PrimaryKey,
-  t,
-  OneToOne,
-  ManyToOne,
-} from '@mikro-orm/core';
-import { User } from 'src/users/entities/user.entity';
+import { Entity, Property, PrimaryKey, t } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 
 @Entity()
@@ -16,6 +8,9 @@ export class Tags {
 
   @Property()
   tag_deleted?: boolean = false;
+
+  @Property({ type: t.uuid })
+  tag_created_by_id?: string;
 
   @Property({ type: t.uuid })
   tag_created_by_user_id?: string;
