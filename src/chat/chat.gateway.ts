@@ -13,24 +13,23 @@ export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
 
   @SubscribeMessage('chat/create')
-  create(@MessageBody() createChatDto: CreateChatDto) {
-    return this.chatService.create(createChatDto);
+  async create(@MessageBody() createChatDto: CreateChatDto) {
+    return await this.chatService.create(createChatDto);
   }
 
   @SubscribeMessage('chat/find')
-  findAll(client: Socket) {
-    console.log('called');
+  async findAll(client: Socket) {
     client.emit('chat/find', 'Recieved');
-    return this.chatService.findAll();
+    return await this.chatService.findAll();
   }
 
   @SubscribeMessage('chat/update')
-  update(@MessageBody() updateChatDto: UpdateChatDto) {
-    return this.chatService.update(updateChatDto.id, updateChatDto);
+  async update(@MessageBody() updateChatDto: UpdateChatDto) {
+    return await this.chatService.update(updateChatDto.id, updateChatDto);
   }
 
   @SubscribeMessage('chat/delete')
-  remove(@MessageBody() id: number) {
-    return this.chatService.remove(id);
+  async remove(@MessageBody() id: number) {
+    return await this.chatService.remove(id);
   }
 }
