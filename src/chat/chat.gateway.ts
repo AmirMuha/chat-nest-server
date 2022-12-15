@@ -9,8 +9,11 @@ import { UpdateChatDto } from './dto/update-chat.dto';
 import { Socket } from 'socket.io';
 import { FilterChatDto } from './dto/filter-chat.dto';
 import { Server } from 'ws';
+import { UseGuards } from '@nestjs/common';
+import { WsGuard } from 'src/auth/ws-auth.guard';
 
 @WebSocketGateway()
+@UseGuards(WsGuard)
 export class ChatGateway {
   @WebSocketServer()
   server: Server;
