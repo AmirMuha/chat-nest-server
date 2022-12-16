@@ -1,12 +1,4 @@
-import {
-  t,
-  Entity,
-  Property,
-  PrimaryKey,
-  JsonType,
-  ArrayType,
-  EntityRepositoryType,
-} from '@mikro-orm/core';
+import { t, Entity, Property, PrimaryKey, JsonType, ArrayType, EntityRepositoryType } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { ChatRepository } from '../chat.repository';
 import { ChatContentType } from './chat.entity.type';

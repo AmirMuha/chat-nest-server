@@ -19,8 +19,6 @@ async function bootstrap() {
   await app.get(MikroORM).getSchemaGenerator().updateSchema();
 
   const PORT = process.env.PORT;
-  await app
-    .listen(PORT)
-    .then(() => console.log('server is running on port ' + PORT));
+  await app.listen(PORT).then(() => console.log('server is running on port ' + PORT));
 }
 bootstrap();

@@ -1,16 +1,18 @@
 import { EntityManager } from '@mikro-orm/postgresql';
-import { BadRequestException, Injectable } from '@nestjs/common';
-import axios from 'axios';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly em: EntityManager) {}
+  constructor(private readonly em: EntityManager, @Inject('AUTH_MICROSERVICE_TOKEN') private readonly client: ClientProxy) {}
+
+  async validateToken(token: string) {
+    const decoded = this.client.send('auth/validate/token', token);
+    return decoded;
+  }
 
   async getOneByUsername(username: string) {
-    const user = await axios.get(
-      `${process.env.AUTH_SYSTEM_SERVER_URL}/users/${username}/username`,
-    );
-    console.log(user);
-    return user.data.result;
+    const user_obs = this.client.send('users/find/by/username', username);
+    return user_obs;
   }
 }

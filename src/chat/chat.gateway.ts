@@ -1,16 +1,13 @@
-import {
-  WebSocketGateway,
-  SubscribeMessage,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { WebSocketGateway, SubscribeMessage, WebSocketServer, MessageBody, ConnectedSocket } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
 import { Socket } from 'socket.io';
-import { FilterChatDto } from './dto/filter-chat.dto';
 import { Server } from 'ws';
+import { FilterChatDto } from './dto/filter-chat.dto';
 import { UseGuards } from '@nestjs/common';
 import { WsGuard } from 'src/auth/ws-auth.guard';
+import { WsUser } from 'src/common/decorators/ws-user.decorator';
 
 @WebSocketGateway()
 @UseGuards(WsGuard)
@@ -20,30 +17,32 @@ export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
 
   @SubscribeMessage('chat/create')
-  async create(socket: Socket, data: CreateChatDto) {
+  async create(@ConnectedSocket() client: Socket, data: CreateChatDto, @WsUser() user: IUserPayload) {
     const created_chat = await this.chatService.create(data);
-    socket.emit('chat/create', created_chat);
+    client.emit('chat/create', created_chat);
   }
 
   @SubscribeMessage('chat/find')
-  async findAll(socket: Socket, filters: FilterChatDto) {
+  async findAll(@ConnectedSocket() client: Socket, @MessageBody() filters: FilterChatDto, @WsUser() user: IUserPayload) {
     const result = await this.chatService.findAll(filters);
-    socket.emit('chat/find', result);
-    return result;
+    client.emit('chat/find', result);
   }
 
   @SubscribeMessage('chat/update')
-  async update(socket: Socket, data: UpdateChatDto) {
-    return await this.chatService.update(data);
+  async update(@ConnectedSocket() client: Socket, @MessageBody() data: UpdateChatDto, @WsUser() user: IUserPayload) {
+    const result = await this.chatService.update(data);
+    client.emit('chat/update', result);
   }
 
   @SubscribeMessage('chat/delete')
-  async removeOne(socket: Socket, id: string) {
-    return await this.chatService.removeOne(id);
+  async removeOne(@ConnectedSocket() client: Socket, @MessageBody() id: string, @WsUser() user: IUserPayload) {
+    const result = await this.chatService.removeOne(id);
+    client.emit('chat/delete', result);
   }
 
-  @SubscribeMessage('chat/delete')
-  async removeMany(socket: Socket, ids: string[]) {
-    return await this.chatService.removeMany(ids);
+  @SubscribeMessage('chat/delete/many')
+  async removeMany(@ConnectedSocket() client: Socket, @MessageBody() ids: string[], @WsUser() user: IUserPayload) {
+    const result = await this.chatService.removeMany(ids);
+    client.emit('chat/delete/many', result);
   }
 }

@@ -5,11 +5,11 @@ COPY . .
 EXPOSE 4200
 CMD ["npm", "run", "start:dev"]
 
-FROM node:16.15 as prod
+FROM node:16.15-alpine as prod
 WORKDIR /usr/app/
-COPY package* .
-RUN npm i
+COPY package* yarn* ./
+RUN yarn
 COPY . .
-RUN npm run build
+RUN yarn build
 EXPOSE 4200
 CMD ["node", "dist/main.js"]

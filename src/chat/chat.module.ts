@@ -6,7 +6,7 @@ import { Chat } from './entities/chat.entity';
 
 @Module({
   imports: [MikroOrmModule.forFeature([Chat])],
-  providers: [ChatGateway, ChatService],
+  providers: [ChatService, ChatGateway],
   exports: [ChatService],
 })
 export class ChatModule {}

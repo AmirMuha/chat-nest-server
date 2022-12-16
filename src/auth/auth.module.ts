@@ -1,21 +1,25 @@
-import { Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { Global, Module } from '@nestjs/common';
+import { ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { WsGuard } from './ws-auth.guard';
 
+@Global()
 @Module({
-  imports: [
-    PassportModule,
-    JwtModule.register({
-      secret: `${process.env.JWT_SECRET}`,
-      signOptions: {
-        expiresIn: `${parseInt(process.env.JWT_MAX_AGE_DAYS) * 24}h`,
+  imports: [PassportModule],
+  providers: [
+    {
+      provide: 'AUTH_MICROSERVICE_TOKEN',
+      useFactory() {
+        const { AUTH_SERVICE_PORT, AUTH_SERVICE_HOST } = process.env;
+        return ClientProxyFactory.create({ transport: Transport.REDIS, options: { host: AUTH_SERVICE_HOST, port: parseInt(AUTH_SERVICE_PORT) } });
       },
-    }),
+    },
+    AuthService,
+    JwtStrategy,
+    WsGuard,
   ],
-  providers: [AuthService, JwtService, JwtStrategy, WsGuard],
-  exports: [AuthService],
+  exports: [AuthService, WsGuard],
 })
 export class AuthModule {}

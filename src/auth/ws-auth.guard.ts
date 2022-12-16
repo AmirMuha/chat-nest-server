@@ -1,30 +1,26 @@
-import { CanActivate, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import axios from 'axios';
+import { CanActivate, ExecutionContext, forwardRef, Inject, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { catchError, lastValueFrom, map } from 'rxjs';
+import { AuthService } from './auth.service';
 
 @Injectable()
 export class WsGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
-
-  async canActivate(context: any): Promise<boolean | any> {
-    console.log(context.args[0].handshake);
-    console.log('----------------------------------------');
-    console.log(context.args[0].handshake);
-    const bearerToken =
-      context.args[0].handshake.headers.authorization.split(' ')[1];
-    const decoded = this.jwtService.verify(bearerToken, {
-      secret: process.env.JWT_SECRET,
-    });
-    const user = await axios.get(
-      `${process.env.AUTH_SYSTEM_SERVER_URL}/users/${decoded.username}/username`,
-      {
-        headers: {
-          authorization: context.args[0].handshake.headers.authorization,
-        },
-      },
+  constructor(@Inject(forwardRef(() => AuthService)) private readonly authService: AuthService) {}
+  async canActivate(context: ExecutionContext): Promise<boolean | any> {
+    const ctx = context as any;
+    if (!ctx.args[0].handshake.headers.authorization) return false;
+    const token = ctx.args[0].handshake.headers.authorization.split(' ')[1];
+    const decoded = await this.authService.validateToken(token);
+    const user = await lastValueFrom(
+      decoded.pipe(
+        catchError((err) => {
+          throw new InternalServerErrorException(err);
+        }),
+        map((v) => v),
+      ),
     );
-    console.log(user);
-    if (!!user.data.result) return true;
-    else return false;
+    if (user) {
+      ctx.args[0].user = user;
+      return user;
+    } else throw new UnauthorizedException('لطفا دوباره وارد شوید');
   }
 }
