@@ -1,57 +1,64 @@
-import {
-  WebSocketGateway,
-  SubscribeMessage,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { WebSocketGateway, SubscribeMessage, WebSocketServer, ConnectedSocket, MessageBody } from '@nestjs/websockets';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { Server } from 'ws';
 import { Socket } from 'socket.io';
+import { UseGuards } from '@nestjs/common';
+import { WsGuard } from 'src/auth/ws-auth.guard';
+import { WsUser } from 'src/common/decorators/ws-user.decorator';
+import { FilterRoomDto } from './dto/filter-room.dto';
 
 @WebSocketGateway()
+@UseGuards(WsGuard)
 export class RoomsGateway {
   @WebSocketServer()
   server: Server;
   constructor(private readonly roomsService: RoomsService) {}
 
   @SubscribeMessage('room/create')
-  async create(client: Socket, data: CreateRoomDto) {
-    return await this.roomsService.create(data);
+  async create(@ConnectedSocket() client: Socket, @MessageBody() data: CreateRoomDto, @WsUser() user: IUserPayload) {
+    const result = await this.roomsService.create(data, user);
+    client.emit('room/create', result);
   }
 
   @SubscribeMessage('room/join')
-  async join(client: Socket, room_id: string) {
+  async join(@ConnectedSocket() client: Socket, @MessageBody() room_id: string, @WsUser() user: IUserPayload) {
     await client.join(room_id);
   }
 
   @SubscribeMessage('room/leave')
-  async leave(client: Socket, room_id: string) {
+  async leave(@ConnectedSocket() client: Socket, @MessageBody() room_id: string, @WsUser() user: IUserPayload) {
     await client.leave(room_id);
   }
 
   @SubscribeMessage('room/find')
-  async findAll() {
-    return await this.roomsService.findAll();
+  async findAll(@ConnectedSocket() client: Socket, @MessageBody() filters: FilterRoomDto, @WsUser() user: IUserPayload) {
+    const results = await this.roomsService.findAll(filters, user);
+    client.emit('room/find', results);
   }
 
   @SubscribeMessage('room/find-one')
-  async findOne(client: Socket, id: string) {
-    return await this.roomsService.findOne(id);
+  async findOne(@ConnectedSocket() client: Socket, @MessageBody() id: string, @WsUser() user: IUserPayload) {
+    const result = await this.roomsService.findOne(id, user);
+    client.emit('room/find-one', result);
   }
 
-  @SubscribeMessage('updateRoom')
-  async update(client: Socket, data: UpdateRoomDto) {
-    return await this.roomsService.update(data);
+  @SubscribeMessage('room/update')
+  async update(@ConnectedSocket() client: Socket, @MessageBody() data: UpdateRoomDto, @WsUser() user: IUserPayload) {
+    const result = await this.roomsService.update(data, user);
+    client.emit('room/update', result);
   }
 
-  @SubscribeMessage('removeRoom')
-  async remove(client: Socket, id: string) {
-    return await this.roomsService.removeOne(id);
+  @SubscribeMessage('room/remove')
+  async remove(@ConnectedSocket() client: Socket, @MessageBody() id: string, @WsUser() user: IUserPayload) {
+    const result = await this.roomsService.removeOne(id, user);
+    client.emit('room/remove/many', result);
   }
 
-  @SubscribeMessage('removeRoom')
-  async removeMany(client: Socket, ids: string[]) {
-    return await this.roomsService.removeMany(ids);
+  @SubscribeMessage('room/remove/many')
+  async removeMany(@ConnectedSocket() client: Socket, @MessageBody() ids: string[], @WsUser() user: IUserPayload) {
+    const result = await this.roomsService.removeMany(ids, user);
+    client.emit('room/remove/many', result);
   }
 }

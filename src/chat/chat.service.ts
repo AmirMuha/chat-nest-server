@@ -10,50 +10,56 @@ import { Chat } from './entities/chat.entity';
 @Injectable()
 export class ChatService {
   constructor(private readonly repo: ChatRepository, private readonly em: EntityManager) {}
-  async create(data: CreateChatDto) {
+  async create(data: CreateChatDto, user: IUserPayload) {
     const qb = this.em.fork().createQueryBuilder(Chat);
-    const result = await qb.select(CHAT_SELECT).insert(data).execute();
+    const result = await qb.select(CHAT_SELECT).insert(data).execute('get');
+    console.log(result);
     return {
+      user,
       result,
       status: HttpStatus.CREATED,
     };
   }
 
-  async findAll(filters: FilterChatDto) {
+  async findAll(filters: FilterChatDto, user: IUserPayload) {
     const qb = this.em.fork().createQueryBuilder(Chat, 'chat');
     const chats = await qb.select(CHAT_SELECT).where({ chat_deleted: false }).execute();
     return {
+      user,
       result: chats,
       status: HttpStatus.OK,
     };
   }
 
-  async update(data: UpdateChatDto) {
+  async update(data: UpdateChatDto, user: IUserPayload) {
     const qb = this.em.fork().createQueryBuilder(Chat);
     const chat_count = await qb.count().where({ chat_id: data.chat_id }).execute();
     if (chat_count[0].count === 0) throw new NotFoundException('پیامی با آیدی وارد شده یافت نشد.');
     const result = await qb.select(CHAT_SELECT).update(data).where({ chat_id: data.chat_id }).execute();
     return {
+      user,
       result,
       status: HttpStatus.OK,
     };
   }
 
-  async removeOne(id: string) {
+  async removeOne(id: string, user: IUserPayload) {
     const qb = this.em.fork().createQueryBuilder(Chat);
     const chat_count = await qb.count().where({ chat_id: id }).execute();
     if (chat_count[0].count === 0) throw new NotFoundException('پیامی با آیدی وارد شده یافت نشد.');
     await qb.select(CHAT_SELECT).delete().where({ chat_id: id }).execute();
     await this.repo.nativeDelete({ chat_id: id });
     return {
+      user,
       status: HttpStatus.OK,
     };
   }
 
-  async removeMany(ids: string[]) {
+  async removeMany(ids: string[], user: IUserPayload) {
     const qb = this.em.fork().createQueryBuilder(Chat);
     const result = await qb.select(CHAT_SELECT).delete().where({ 'chat_id IN': ids }).execute('all');
     return {
+      user,
       result,
       status: HttpStatus.OK,
     };

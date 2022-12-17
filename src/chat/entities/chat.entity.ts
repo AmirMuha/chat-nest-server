@@ -18,6 +18,9 @@ export class Chat {
   @Property({ type: t.uuid })
   chat_sent_by_id?: string;
 
+  @Property({ type: 'enum' })
+  chat_type: EChatTypes;
+
   @Property({ type: ArrayType<string> })
   chat_sent_to_ids?: string[];
 
@@ -35,4 +38,15 @@ export class Chat {
 
   @Property()
   chat_deleted_at?: Date;
+}
+
+export enum EChatTypes {
+  GIF = 'GIF',
+  TEXT = 'TEXT',
+  IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
+  AUDIO = 'AUDIO',
+  GALLARY = 'GALLARY',
+  RICH_TEXT = 'RICH_TEXT',
+  ATTATCHMENT = 'ATTATCHMENT',
 }
