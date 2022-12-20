@@ -1,19 +1,22 @@
-import { Entity, Property, PrimaryKey, t } from '@mikro-orm/core';
+import { Entity, Property, PrimaryKey, t, EntityRepositoryType } from '@mikro-orm/core';
 import { v4 } from 'uuid';
+import { TagRepository } from '../tags.repository';
 
-@Entity()
+@Entity({ customRepository: () => TagRepository })
 export class Tags {
+  [EntityRepositoryType]: TagRepository;
+
   @PrimaryKey({ type: t.uuid })
   tag_id: string = v4();
+
+  @Property({ type: 'varchar' })
+  tag_name: string;
 
   @Property()
   tag_deleted?: boolean = false;
 
   @Property({ type: t.uuid })
   tag_created_by_id?: string;
-
-  @Property({ type: t.uuid })
-  tag_created_by_user_id?: string;
 
   @Property()
   tag_created_at?: Date = new Date();

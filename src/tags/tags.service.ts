@@ -1,26 +1,91 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { clean } from 'src/common/helpers/clean.helper';
 import { CreateTagDto } from './dto/create-tag.dto';
+import { FilterTagsDto } from './dto/filter-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import { TAGS_SELECT } from './tags.constant';
+import { TagRepository } from './tags.repository';
 
 @Injectable()
 export class TagsService {
-  create(createTagDto: CreateTagDto) {
-    return 'This action adds a new tag';
+  constructor(private readonly repo: TagRepository) {}
+
+  async create(data: CreateTagDto, user: IUserPayload) {
+    const result = this.repo.create({ tag_name: data.name, tag_created_by_id: user.id });
+    this.repo.persist(result);
+    await this.repo.flush();
+    return {
+      user,
+      result,
+      status: HttpStatus,
+    };
   }
 
-  findAll() {
-    return `This action returns all tags`;
+  async findAll(filters: FilterTagsDto, user: IUserPayload) {
+    const qb = this.repo.qb();
+    console.log(
+      clean({
+        tag_name: { $contains: filters.name },
+        tag_created_by_id: filters.created_by_id,
+      }),
+    );
+    const result = await qb
+      .select(TAGS_SELECT)
+      .where(
+        clean({
+          tag_name: { $contains: filters.name },
+          tag_created_by_id: filters.created_by_id,
+        }),
+      )
+      .execute();
+    return {
+      user,
+      result,
+      status: HttpStatus.OK,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tag`;
+  async findOneById(id: number, user: IUserPayload) {
+    const qb = this.repo.qb();
+    const result = await qb.select(TAGS_SELECT).where({ tag_id: id }).execute();
+    return {
+      user,
+      result,
+      status: HttpStatus.OK,
+    };
   }
 
-  update(id: number, updateTagDto: UpdateTagDto) {
-    return `This action updates a #${id} tag`;
+  async updateOneById(data: UpdateTagDto, user: IUserPayload) {
+    const qb = this.repo.qb();
+    const result = await qb
+      .select(TAGS_SELECT)
+      .update({
+        tag_name: data.name,
+      })
+      .where({ tag_id: data.id })
+      .execute();
+    return {
+      user,
+      result,
+      status: HttpStatus.OK,
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tag`;
+  async removeOneById(id: string, user: IUserPayload) {
+    const qb = this.repo.qb();
+    await qb.delete().where({ tag_id: id }).execute();
+    return {
+      user,
+      status: HttpStatus.OK,
+    };
+  }
+
+  async removeMany(ids: string[], user: IUserPayload) {
+    const qb = this.repo.qb();
+    await qb.delete().where({ 'tag_id IN': ids }).execute();
+    return {
+      user,
+      status: HttpStatus.OK,
+    };
   }
 }
