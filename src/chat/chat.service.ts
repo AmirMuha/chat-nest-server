@@ -13,7 +13,6 @@ export class ChatService {
   async create(data: CreateChatDto, user: IUserPayload) {
     const qb = this.em.fork().createQueryBuilder(Chat);
     const result = await qb.select(CHAT_SELECT).insert(data).execute('get');
-    console.log(result);
     return {
       user,
       result,

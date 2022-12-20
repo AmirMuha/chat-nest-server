@@ -27,6 +27,12 @@ export class Chat {
   @Property({ type: ArrayType<string> })
   chat_tags_ids?: string[];
 
+  @Property({ type: t.uuid })
+  chat_is_seen_by?: string[];
+
+  @Property({ type: t.boolean })
+  chat_is_seen = false;
+
   @Property()
   chat_deleted?: boolean = false;
 
