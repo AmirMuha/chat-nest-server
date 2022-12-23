@@ -3,19 +3,16 @@ import { MikroOrmModuleSyncOptions } from '@mikro-orm/nestjs';
 import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { SqlHighlighter } from '@mikro-orm/sql-highlighter';
 import { Logger } from '@nestjs/common';
+import { storage } from './main';
 
-const {
-  POSTGRES_DB,
-  POSTGRES_USER,
-  POSTGRES_PORT,
-  POSTGRES_HOST,
-  POSTGRES_PASSWORD,
-} = process.env;
+const { POSTGRES_DB, POSTGRES_USER, POSTGRES_PORT, POSTGRES_HOST, POSTGRES_PASSWORD } = process.env;
 
 export default {
   metadataProvider: TsMorphMetadataProvider,
   logger: (message) => Logger.log(message),
   debug: true,
+  registerRequestContext: false,
+  context: () => storage.getStore(),
   allowGlobalContext: false,
   highlighter: new SqlHighlighter(),
   entities: ['./**/*.entity.js'],

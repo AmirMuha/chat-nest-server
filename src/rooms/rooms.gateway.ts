@@ -32,13 +32,19 @@ export class RoomsGateway {
     await client.leave(room_id);
   }
 
-  @SubscribeMessage('room/find')
+  @SubscribeMessage('room/find/many')
   async findAll(@ConnectedSocket() client: Socket, @MessageBody() filters: FilterRoomDto, @WsUser() user: IUserPayload) {
     const results = await this.roomsService.findAll(filters, user);
     client.emit('room/find', results);
   }
 
-  @SubscribeMessage('room/find-one')
+  @SubscribeMessage('room/find/many/with-last-message')
+  async findAllWithLastMessage(@ConnectedSocket() client: Socket, @MessageBody() filters: FilterRoomDto, @WsUser() user: IUserPayload) {
+    const results = await this.roomsService.findAllWithLastMessage(filters, user);
+    client.emit('room/find/many/with-last-message', results);
+  }
+
+  @SubscribeMessage('room/find/one/by-id')
   async findOne(@ConnectedSocket() client: Socket, @MessageBody() id: string, @WsUser() user: IUserPayload) {
     const result = await this.roomsService.findOne(id, user);
     client.emit('room/find-one', result);
