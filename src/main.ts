@@ -18,11 +18,11 @@ async function bootstrap() {
   // app.useGlobalFilters(new CustomExceptionFilter());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   // app.useWebSocketAdapter(new WsAdapter(app));
-  app.use(
-    cors({
-      origin: '*',
-    }),
-  );
+  app.enableCors({
+    origin: ['http://localhost:4200', 'http://localhost:4201'],
+    credentials: true,
+    methods: ['GET', 'POST'],
+  });
   const orm = app.get(MikroORM);
   await orm.getMigrator().up();
   await orm.getSchemaGenerator().ensureDatabase();
