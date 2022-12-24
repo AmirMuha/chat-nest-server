@@ -6,7 +6,15 @@ import { Socket } from 'socket.io';
 import { FilterTagsDto } from './dto/filter-tag.dto';
 import { WsUser } from 'src/common/decorators/ws-user.decorator';
 
-@WebSocketGateway()
+@WebSocketGateway(parseInt(process.env.PORT), {
+  transports: ['polling', 'websocket'],
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+    withCredentials: true,
+    allowedHeaders: ['authorization', 'room_id', 'room_name', 'room_name_id'],
+  },
+})
 export class TagsGateway {
   constructor(private readonly tagsService: TagsService) {}
 

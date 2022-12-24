@@ -10,7 +10,15 @@ import { WsGuard } from 'src/auth/ws-auth.guard';
 import { WsUser } from 'src/common/decorators/ws-user.decorator';
 import { ChatRoomInfo } from 'src/common/decorators/ws-chat-room-id.decorator';
 
-@WebSocketGateway()
+@WebSocketGateway(parseInt(process.env.PORT), {
+  transports: ['polling', 'websocket'],
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST'],
+    withCredentials: true,
+    allowedHeaders: ['authorization', 'room_id', 'room_name', 'room_name_id'],
+  },
+})
 @UseGuards(WsGuard)
 export class ChatGateway {
   @WebSocketServer()
