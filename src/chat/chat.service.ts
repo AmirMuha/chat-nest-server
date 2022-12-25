@@ -1,5 +1,6 @@
 import { EntityManager } from '@mikro-orm/postgresql';
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { RoomsService } from 'src/rooms/rooms.service';
 import { CHAT_SELECT } from './chat.constant';
 import { ChatRepository } from './chat.repository';
 import { CreateChatDto } from './dto/create-chat.dto';
@@ -9,7 +10,7 @@ import { Chat } from './entities/chat.entity';
 
 @Injectable()
 export class ChatService {
-  constructor(private readonly repo: ChatRepository, private readonly em: EntityManager) {}
+  constructor(private readonly repo: ChatRepository, private readonly roomsService: RoomsService, private readonly em: EntityManager) {}
   async create(data: CreateChatDto, user: IUserPayload) {
     const qb = this.em.fork().createQueryBuilder(Chat);
     const result = await qb.select(CHAT_SELECT).insert(data).execute('get');

@@ -30,7 +30,7 @@ export class Chat {
   @Property({ type: t.boolean }) chat_is_seen = false;
   @Property() chat_deleted?: boolean = false;
   @Property() chat_created_at?: Date = new Date();
-  @Property({ onUpdate: () => new Date() }) chat_updated_at?: Date;
+  @Property() chat_updated_at?: Date;
   @Property() chat_deleted_at?: Date;
   @OneToOne(() => Chat, { nullable: true, name: 'chat_reply_to_id' }) chat_reply_to?: Chat;
   @ManyToOne(() => Room, { name: 'chat_room_id', nullable: false }) chat_room: Room;

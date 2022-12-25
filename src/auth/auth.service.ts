@@ -12,7 +12,7 @@ export class AuthService {
   }
 
   async getOneByUsername(username: string) {
-    const user_obs = this.client.send('users/find/by/username', username);
+    const user_obs = this.client.send('user/find/by/username', username);
     return user_obs;
   }
 }

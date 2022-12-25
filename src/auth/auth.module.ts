@@ -20,6 +20,16 @@ import { WsGuard } from './ws-auth.guard';
     JwtStrategy,
     WsGuard,
   ],
-  exports: [AuthService, WsGuard],
+  exports: [
+    WsGuard,
+    AuthService,
+    {
+      provide: 'AUTH_MICROSERVICE_TOKEN',
+      useFactory() {
+        const { AUTH_SERVICE_PORT, AUTH_SERVICE_HOST } = process.env;
+        return ClientProxyFactory.create({ transport: Transport.REDIS, options: { host: AUTH_SERVICE_HOST, port: parseInt(AUTH_SERVICE_PORT) } });
+      },
+    },
+  ],
 })
 export class AuthModule {}

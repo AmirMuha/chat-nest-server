@@ -4,10 +4,11 @@ import { ChatService } from './chat.service';
 import { ChatGateway } from './chat.gateway';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Chat } from './entities/chat.entity';
+import { RoomsModule } from 'src/rooms/rooms.module';
 
 @Module({
+  imports: [MikroOrmModule.forFeature([Chat]), RoomsModule],
   controllers: [ChatController],
-  imports: [MikroOrmModule.forFeature([Chat])],
   providers: [ChatService, ChatGateway],
   exports: [ChatService],
 })
