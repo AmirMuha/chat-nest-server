@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsArray, IsEnum, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { EChatTypes } from '../entities/chat.entity';
 import { ChatContentType } from '../entities/chat.entity.type';
 
 export class CreateChatContentBlockTypeDto {
@@ -39,21 +40,20 @@ export class CreateChatContentTypeDto implements ChatContentType {
 }
 
 export class CreateChatDto {
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  chat_sent_to_ids?: string[];
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  chat_sent_by_id?: string;
-  @IsOptional()
-  @IsArray()
+  chat_sent_by_id: string;
+  @IsNotEmpty()
   @ValidateNested()
   @Type(() => CreateChatContentTypeDto)
-  chat_content?: CreateChatContentTypeDto;
-  @IsOptional()
+  chat_content: CreateChatContentTypeDto;
+  @IsNotEmpty()
   @IsString()
-  chat_room_id?: string;
+  chat_room_id: string;
+  @IsNotEmpty()
+  @IsString()
+  @IsEnum(EChatTypes)
+  chat_type: EChatTypes;
   @IsOptional()
   @IsArray()
   @IsString({ each: true })

@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, ValidateNested } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateNested } from 'class-validator';
 import { ERoomTypes } from '../entities/room.entity';
 
 export class CreateRoomSettingDto {
@@ -32,4 +32,8 @@ export class CreateRoomDto {
   @IsString()
   @MaxLength(50)
   room_name: string;
+  @IsNotEmpty()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  room_users_ids: string[];
 }

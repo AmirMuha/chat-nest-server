@@ -1,17 +1,4 @@
-import {
-  t,
-  Entity,
-  Property,
-  PrimaryKey,
-  JsonType,
-  ArrayType,
-  EntityRepositoryType,
-  ManyToOne,
-  OneToOne,
-  Collection,
-  ManyToMany,
-  Enum,
-} from '@mikro-orm/core';
+import { t, Entity, Property, PrimaryKey, JsonType, EntityRepositoryType, ManyToOne, OneToOne, Collection, ManyToMany, Enum } from '@mikro-orm/core';
 import { Room } from 'src/rooms/entities/room.entity';
 import { Tags } from 'src/tags/entities/tag.entity';
 import { v4 } from 'uuid';
@@ -22,10 +9,9 @@ import { ChatContentType } from './chat.entity.type';
 export class Chat {
   [EntityRepositoryType]: ChatRepository;
   @PrimaryKey({ type: t.uuid }) chat_id: string = v4();
-  @Property({ type: JsonType }) chat_content?: ChatContentType[];
-  @Property({ type: t.uuid }) chat_sent_by_id?: string;
+  @Property({ type: JsonType }) chat_content: ChatContentType[];
+  @Property({ type: t.uuid }) chat_sent_by_id: string;
   @Enum() chat_type: EChatTypes;
-  @Property({ type: ArrayType<string> }) chat_sent_to_ids?: string[];
   @Property({ type: t.uuid }) chat_is_seen_by?: string[];
   @Property({ type: t.boolean }) chat_is_seen = false;
   @Property() chat_deleted?: boolean = false;

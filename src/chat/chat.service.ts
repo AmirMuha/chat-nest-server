@@ -12,11 +12,12 @@ import { Chat } from './entities/chat.entity';
 export class ChatService {
   constructor(private readonly repo: ChatRepository, private readonly roomsService: RoomsService, private readonly em: EntityManager) {}
   async create(data: CreateChatDto, user: IUserPayload) {
-    const qb = this.em.fork().createQueryBuilder(Chat);
-    const result = await qb.select(CHAT_SELECT).insert(data).execute('get');
+    const repo = this.em.fork().getRepository(Chat);
+    const created_user = repo.create({ ...data, chat_sent_by_id: user.id, chat_room: { room_id: data.chat_room_id } });
+    await repo.persist(created_user).flush();
     return {
       user,
-      result,
+      result: created_user,
       status: HttpStatus.CREATED,
     };
   }

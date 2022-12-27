@@ -6,12 +6,12 @@ import { Chat } from 'src/chat/entities/chat.entity';
 @Entity({ customRepository: () => RoomRepository })
 export class Room {
   [EntityRepositoryType]: RoomRepository;
-
   @PrimaryKey({ type: t.uuid }) room_id: string = v4();
   @Property({ type: 'varchar', length: 50, unique: true }) room_name: string;
   @Property({ type: 'varchar', unique: true }) room_name_id: string;
   @Enum() room_type: ERoomTypes;
   @Property({ type: t.uuid }) room_created_by_id: string;
+  @Property() room_users_ids: string[];
   @Property({ type: t.json })
   room_settings?: {
     room_settings_background_image?: string;
