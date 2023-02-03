@@ -49,10 +49,10 @@ export class RoomsGateway {
     client.emit('room/find/many/with-last-message', results);
   }
 
-  @SubscribeMessage('room/find/one/by-id')
+  @SubscribeMessage('room/find/one/by/id')
   async findOne(@ConnectedSocket() client: Socket, @MessageBody() [id, room]: [string, RoomInfoDto], @WsUser() user: IUserPayload) {
     const result = await this.roomsService.findOne(id, user);
-    client.emit('room/find-one', result);
+    client.emit('room/find/one/by/id', result);
   }
 
   @SubscribeMessage('room/update')
